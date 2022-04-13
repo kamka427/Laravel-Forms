@@ -17,8 +17,8 @@ class CreateAnswersTable extends Migration
             $table->id();
             $table->integer('question_id');
             $table->integer('user_id')->nullable();
-            $table->integer('choice_id');
-            $table->text('answer');
+            $table->integer('choice_id')->nullable();
+            $table->text('answer')->nullable();
             $table->timestamps();
 
 
