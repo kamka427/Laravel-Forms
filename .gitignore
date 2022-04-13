@@ -1,0 +1,33 @@
+/node_modules
+/public/hot
+/public/storage
+/storage/*.key
+/vendor
+.env
+.env.backup
+.phpunit.result.cache
+docker-compose.override.yml
+Homestead.json
+Homestead.yaml
+npm-debug.log
+yarn-error.log
+/.idea
+/.vscode
+
+# Generalt fajlok
+composer.lock
+package-lock.json
+STATEMENT.txt
+/zipfiles
+/public/app.css
+/public/app.js
+/public/css
+/public/js
+/public/fonts
+/public/webfonts
+/public/mix-manifest.json
+
+# Local History for Visual Studio Code
+.history/
+
+.DS_Store
