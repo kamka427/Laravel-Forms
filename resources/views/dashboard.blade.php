@@ -11,10 +11,6 @@
                 <div class="p-6 bg-white border-b border-gray-200">
                     You're logged in!
                 </div>
-                {{-- <div class="p-6 bg-white border-b border-gray-200">
-                    <a href="{{ route('forms.create') }}">Új űrlap létrehozása</a>
-                    <a>Meglévő űrlap kezelése</a>
-                </div> --}}
             </div>
         </div>
     </div>
