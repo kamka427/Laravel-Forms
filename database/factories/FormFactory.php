@@ -3,6 +3,8 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
+
 
 class FormFactory extends Factory
 {
@@ -14,7 +16,7 @@ class FormFactory extends Factory
     public function definition()
     {
         return [
-            'title' => $this->faker->word(),
+            'title' => Str::ucfirst($this->faker->words($this->faker->numberBetween(3, 8), true)),
             'expires_at' => $this->faker->dateTimeBetween('+1 week', '+1 year'),
             'auth_required' => $this->faker->boolean(),
         ];

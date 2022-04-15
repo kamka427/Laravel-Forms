@@ -83,10 +83,11 @@ class DatabaseSeeder extends Seeder
                     $answers_number = $faker->numberBetween(2, $choices_number);
                     $user_id = $users->random()->id;
                     for ($i = 0; $i < $answers_number; $i++) {
+                        // egy choice csak egyszer lehet megjelölve
                         Answer::factory(1)->create([
                             'question_id' => $question->id,
                             'user_id' => $user_id,
-                            'choice_id' => $faker->numberBetween(1, $choices_number)
+                            'choice_id' => $faker->unique(true)->numberBetween(1, $choices_number)
                         ]);
                     }
                 }

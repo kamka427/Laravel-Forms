@@ -8,17 +8,18 @@ use Illuminate\Database\Eloquent\Model;
 class Choice extends Model
 {
     use HasFactory;
+
     protected $fillable = [
-        'id', 'question_id', 'choice', 'created_at', 'updated_at'
+        'question_id', 'choice'
     ];
 
     public function question()
     {
-        return $this->belongsTo(Question::class);
+        return $this->belongsTo(Question::class, 'question_id');
     }
 
     public function answers()
     {
-        return $this->hasMany(Answer::class);
+        return $this->hasMany(Answer::class, 'choice_id');
     }
 }

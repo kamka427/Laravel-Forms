@@ -10,19 +10,19 @@ class Answer extends Model
     use HasFactory;
 
     protected $fillable = [
-        'id', 'question_id', 'user_id', 'choice_id', 'answer', 'created_at', 'updated_at'
+        'question_id', 'user_id', 'choice_id', 'answer'
     ];
 
     public function question()
     {
-        return $this->belongsTo(Question::class);
+        return $this->belongsTo(Question::class, 'question_id');
     }
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
     public function choice()
     {
-        return $this->belongsTo(Choice::class);
+        return $this->belongsTo(Choice::class, 'choice_id');
     }
 }

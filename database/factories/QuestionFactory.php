@@ -3,6 +3,8 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
+
 
 class QuestionFactory extends Factory
 {
@@ -14,7 +16,7 @@ class QuestionFactory extends Factory
     public function definition()
     {
         return [
-            'question' => $this->faker->sentence(),
+            'question' => Str::ucfirst($this->faker->sentence()),
             'answer_type' => $this->faker->randomElement(['TEXTAREA', 'ONE_CHOICE', 'MULTIPLE_CHOICES']),
             'required' => $this->faker->boolean(),
         ];

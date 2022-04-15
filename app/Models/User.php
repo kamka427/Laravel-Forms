@@ -44,10 +44,10 @@ class User extends Authenticatable
 
     public function forms()
     {
-        return $this->hasMany(Form::class);
+        return $this->hasMany(Form::class, 'created_by');
     }
     public function answers()
     {
-        return $this->hasMany(Answer::class);
+        return $this->hasMany(Answer::class, 'user_id');
     }
 }

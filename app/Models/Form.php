@@ -10,7 +10,7 @@ class Form extends Model
     use HasFactory;
 
     protected $fillable = [
-        'id', 'title', 'expires_at', 'auth_required', 'created_by','created_at', 'updated_at'
+        'title', 'expires_at', 'auth_required', 'created_by'
     ];
 
     public function creator()
@@ -20,11 +20,11 @@ class Form extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function questions()
     {
-        return $this->hasMany(Question::class);
+        return $this->hasMany(Question::class, 'form_id');
     }
 }
