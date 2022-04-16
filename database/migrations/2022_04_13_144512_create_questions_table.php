@@ -18,7 +18,7 @@ class CreateQuestionsTable extends Migration
             $table->integer('form_id');
             $table->string('question', 255);
             $table->enum('answer_type', ['TEXTAREA', 'ONE_CHOICE', 'MULTIPLE_CHOICES']);
-            $table->boolean('required')->default(true);
+            $table->boolean('required')->default(false);
             $table->timestamps();
         });
     }

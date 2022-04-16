@@ -18,9 +18,9 @@
                     <x-nav-link :href="route('forms.create')" :active="request()->routeIs('forms.create')">
                         {{ __('Create') }}
                     </x-nav-link>
-                    {{-- <x-nav-link :href="route('forms.manage')" :active="request()->routeIs('forms.manage')">
+                     <x-nav-link :href="route('forms.index')" :active="request()->routeIs('forms.index')">
                         {{ __('Manage') }}
-                    </x-nav-link> --}}
+                    </x-nav-link>
                 </div>
             </div>
 

@@ -64,21 +64,23 @@
                                             <div class="" id="group_{{ $uuid }}">
                                                 <h3 class="">Textarea</h3>
                                                 <fieldset>
-                                                    <x-label class="" for="required_{{ $uuid }}]">
+                                                    <x-label class=""
+                                                        for="required_{{ $uuid }}]">
                                                         Kötelező kitölteni:
-                                                        <input class="rounded" type="checkbox" name="groups[{{ $uuid }}][textarea][required]"
-                                                        id="required_{{ $uuid }}"
-                                                        {{ array_key_exists('required', $group['textarea']) ? 'checked' : '' }}>
-                                                        </x-label>
+                                                        <input class="rounded" type="checkbox"
+                                                            name="groups[{{ $uuid }}][textarea][required]"
+                                                            id="required_{{ $uuid }}"
+                                                            {{ array_key_exists('required', $group['textarea']) ? 'checked' : '' }}>
+                                                    </x-label>
                                                 </fieldset>
                                                 <fieldset>
-                                                    <x-label for="textinput_{{ $uuid }}">Kérdés</x-label>
+                                                    <x-label for="question_{{ $uuid }}">Kérdés</x-label>
                                                     <div class="flex items-center gap-x-4">
                                                         <x-input type="text" class="block mt-1 w-full"
-                                                            id="textinput_{{ $uuid }}"
-                                                            name="groups[{{ $uuid }}][textarea][textinput]"
+                                                            id="question_{{ $uuid }}"
+                                                            name="groups[{{ $uuid }}][textarea][question]"
                                                             placeholder=""
-                                                            value="{{ array_key_exists('textinput', $group['textarea']) ? $group['textarea']['textinput'] : '' }}">
+                                                            value="{{ array_key_exists('question', $group['textarea']) ? $group['textarea']['question'] : '' }}">
                                                         </x-input>
                                                         <x-button type="button"
                                                             class="delete-group btn btn-danger bg-red-600"
@@ -93,19 +95,20 @@
                                                 <fieldset>
                                                     <x-label class="" for="required_{{ $uuid }}">
                                                         Kötelező kitölteni:
-                                                        <input class="rounded" type="checkbox" name="groups[{{ $uuid }}][onechoice][required]"
-                                                        id="required_{{ $uuid }}"
-                                                        {{ array_key_exists('required', $group['onechoice']) ? 'checked' : '' }}>
-                                                        </x-label>
+                                                        <input class="rounded" type="checkbox"
+                                                            name="groups[{{ $uuid }}][onechoice][required]"
+                                                            id="required_{{ $uuid }}"
+                                                            {{ array_key_exists('required', $group['onechoice']) ? 'checked' : '' }}>
+                                                    </x-label>
                                                 </fieldset>
                                                 <fieldset>
-                                                    <x-label for="textinput_{{ $uuid }}">Kérdés</x-label>
+                                                    <x-label for="question_{{ $uuid }}">Kérdés</x-label>
                                                     <div class="flex items-center gap-x-4 mb-4">
                                                         <x-input type="text" class="block mt-1 w-full"
-                                                            id="textinput_{{ $uuid }}"
-                                                            name="groups[{{ $uuid }}][onechoice][textinput]"
+                                                            id="question_{{ $uuid }}"
+                                                            name="groups[{{ $uuid }}][onechoice][question]"
                                                             placeholder=""
-                                                            value="{{ array_key_exists('textinput', $group['onechoice']) ? $group['onechoice']['textinput'] : '' }}">
+                                                            value="{{ array_key_exists('question', $group['onechoice']) ? $group['onechoice']['question'] : '' }}">
                                                         </x-input>
                                                         <x-button type="button"
                                                             class="delete-group btn btn-danger bg-red-600"
@@ -116,27 +119,20 @@
                                                         <x-label for="choices_{{ $uuid }}"
                                                             data-group-type="one">Válaszlehetőségek
                                                         </x-label>
-                                                        @php
-                                                            unset($group['onechoice']['textinput']);
-                                                            unset($group['onechoice']['required']);
-                                                        @endphp
-                                                        @foreach ($group as $choice)
-                                                            @php
-                                                                $uuid2 = Str::uuid();
-                                                                //  var_dump($choice);
-                                                            @endphp
-                                                            @foreach ($choice as $inner)
+                                                        @if (isset($group['onechoice']['choices']))
+                                                            @foreach ($group['onechoice']['choices'] as $choice)
                                                                 @php
-                                                                    // var_dump($inner);
+                                                                    $uuid2 = Str::uuid();
+                                                                    // var_dump($choice);
                                                                 @endphp
 
                                                                 <div class="flex items-center gap-x-4"
                                                                     id="choice_{{ $uuid2 }}">
                                                                     <x-input type="text" class="block mt-1 w-full"
-                                                                        id="textinput_{{ $uuid }}"
-                                                                        name="groups[{{ $uuid }}][onechoice][{{ $uuid2 }}][textinput]"
+                                                                        id="choice_{{ $uuid }}"
+                                                                        name="groups[{{ $uuid }}][onechoice][choices][{{ $uuid2 }}][choice]"
                                                                         placeholder=""
-                                                                        value="{{ array_key_exists('textinput', $inner) ? $inner['textinput'] : '' }}">
+                                                                        value="{{ array_key_exists('choice', $choice) ? $choice['choice'] : '' }}">
                                                                         ></x-input>
                                                                     <x-button type="button"
                                                                         class="remove-choice btn btn-danger bg-red-600"
@@ -145,8 +141,7 @@
                                                                         törlése</x-button>
                                                                 </div>
                                                             @endforeach
-                                                        @endforeach
-
+                                                        @endif
                                                     </div>
                                                     <x-button type="button"
                                                         class="add-choice w-full btn btn-danger bg-cyan-600"
@@ -161,19 +156,20 @@
                                                 <fieldset>
                                                     <x-label class="" for="required_{{ $uuid }}">
                                                         Kötelező kitölteni:
-                                                        <input class="rounded" type="checkbox" name="groups[{{ $uuid }}][mulchoice][required]"
-                                                        id="required_{{ $uuid }}"
-                                                        {{ array_key_exists('required', $group['mulchoice']) ? 'checked' : '' }}>
-                                                        </x-label>
+                                                        <input class="rounded" type="checkbox"
+                                                            name="groups[{{ $uuid }}][mulchoice][required]"
+                                                            id="required_{{ $uuid }}"
+                                                            {{ array_key_exists('required', $group['mulchoice']) ? 'checked' : '' }}>
+                                                    </x-label>
                                                 </fieldset>
                                                 <fieldset>
-                                                    <x-label for="textinput_{{ $uuid }}">Kérdés</x-label>
+                                                    <x-label for="question_{{ $uuid }}">Kérdés</x-label>
                                                     <div class="flex items-center gap-x-4 mb-4">
                                                         <x-input type="text" class="block mt-1 w-full"
-                                                            id="textinput_{{ $uuid }}"
-                                                            name="groups[{{ $uuid }}][mulchoice][textinput]"
+                                                            id="question_{{ $uuid }}"
+                                                            name="groups[{{ $uuid }}][mulchoice][question]"
                                                             placeholder=""
-                                                            value="{{ array_key_exists('textinput', $group['mulchoice']) ? $group['mulchoice']['textinput'] : '' }}">
+                                                            value="{{ array_key_exists('question', $group['mulchoice']) ? $group['mulchoice']['question'] : '' }}">
                                                         </x-input>
                                                         <x-button type="button"
                                                             class="delete-group btn btn-danger bg-red-600"
@@ -184,27 +180,24 @@
                                                         <x-label for="choices_{{ $uuid }}"
                                                             data-group-type="mul">Válaszlehetőségek
                                                         </x-label>
+                                                        @if (isset($group['mulchoice']['choices']))
                                                         @php
-                                                            unset($group['mulchoice']['textinput']);
-                                                            unset($group['mulchoice']['required']);
+                                                            $group['mulchoice']['choices'];
                                                         @endphp
-                                                        @foreach ($group as $choice)
-                                                            @php
-                                                                $uuid2 = Str::uuid();
-                                                                // var_dump($choice);
-                                                            @endphp
-                                                            @foreach ($choice as $inner)
+                                                            @foreach ($group['mulchoice']['choices'] as $choice)
                                                                 @php
-                                                                    // var_dump($inner);
+                                                                    $uuid2 = Str::uuid();
+                                                                    // var_dump($choice);
                                                                 @endphp
+
 
                                                                 <div class="flex items-center gap-x-4"
                                                                     id="choice_{{ $uuid2 }}">
                                                                     <x-input type="text" class="block mt-1 w-full"
-                                                                        id="textinput_{{ $uuid }}"
-                                                                        name="groups[{{ $uuid }}][mulchoice][{{ $uuid2 }}][textinput]"
+                                                                        id="choice_{{ $uuid }}"
+                                                                        name="groups[{{ $uuid }}][mulchoice][choices][{{ $uuid2 }}][choice]"
                                                                         placeholder=""
-                                                                        value="{{ array_key_exists('textinput', $inner) ? $inner['textinput'] : '' }}">
+                                                                        value="{{ array_key_exists('choice', $choice) ? $choice['choice'] : '' }}">
                                                                         ></x-input>
                                                                     <x-button type="button"
                                                                         class="remove-choice btn btn-danger bg-red-600"
@@ -213,7 +206,8 @@
                                                                         törlése</x-button>
                                                                 </div>
                                                             @endforeach
-                                                        @endforeach
+                                                        @endif
+
                                                     </div>
                                                     <x-button type="button"
                                                         class="add-choice w-full btn btn-danger bg-cyan-600"
@@ -260,9 +254,9 @@
                     </x-label>
                 </fieldset>
                 <fieldset>
-					<x-label for="textinput_#ID#">Kérdés</x-label>
+					<x-label for="question_#ID#">Kérdés</x-label>
                     <div class="flex items-center gap-x-4">
-					    <x-input type="text" class="block mt-1 w-full" id="textinput_#ID#" name="groups[#ID#][textarea][textinput]" placeholder=""></x-input>
+					    <x-input type="text" class="block mt-1 w-full" id="question_#ID#" name="groups[#ID#][textarea][question]" placeholder=""></x-input>
                         <x-button type="button" class="delete-group btn btn-danger bg-red-600" data-group-id="#ID#">Kérdés törlése</x-button>
                     </div>
                 </fieldset>
@@ -280,9 +274,9 @@
                     </x-label>
                 </fieldset>
 				<fieldset>
-					<x-label for="textinput_#ID#">Kérdés</x-label>
+					<x-label for="question_#ID#">Kérdés</x-label>
                     <div class="flex items-center gap-x-4 mb-4">
-					    <x-input type="text" class="block mt-1 w-full" id="textinput_#ID#" name="groups[#ID#][onechoice][textinput]" placeholder=""></x-input>
+					    <x-input type="text" class="block mt-1 w-full" id="question_#ID#" name="groups[#ID#][onechoice][question]" placeholder=""></x-input>
                         <x-button type="button" class="delete-group btn btn-danger bg-red-600" data-group-id="#ID#">Kérdés törlése</x-button>
                     </div>
                     <div class="options flex flex-col gap-y-4 mb-4" >
@@ -304,9 +298,9 @@
                     </x-label>
                 </fieldset>
 				<fieldset>
-					<x-label for="textinput_#ID#">Kérdés</x-label>
+					<x-label for="quesiton_#ID#">Kérdés</x-label>
                     <div class="flex items-center gap-x-4 mb-4">
-					    <x-input type="text" class="block mt-1 w-full" id="textinput_#ID#" name="groups[#ID#][mulchoice][textinput]" placeholder=""></x-input>
+					    <x-input type="text" class="block mt-1 w-full" id="question_#ID#" name="groups[#ID#][mulchoice][question]" placeholder=""></x-input>
                         <x-button type="button" class="delete-group btn btn-danger bg-red-600" data-group-id="#ID#">Kérdés törlése</x-button>
                     </div>
                     <div class="options flex flex-col gap-y-4 mb-4">
@@ -319,7 +313,7 @@
 
         const choiceTemplate = `
         <div class="flex items-center gap-x-4" id="choice_#ID2#">
-            <x-input type="text" class="block mt-1 w-full" id="textinput_#ID#" name="groups[#ID#][#CHOICE#][#ID2#][textinput]" placeholder=""></x-input>
+            <x-input type="text" class="block mt-1 w-full" id="choice_#ID#" name="groups[#ID#][#CHOICE#][choices][#ID2#][choice]" placeholder=""></x-input>
             <x-button type="button" class="remove-choice btn btn-danger bg-red-600" data-group-id="#ID#" data-choice-id="#ID2#">Lehetőség törlése</x-button>
         </div>
 		`;

@@ -15,19 +15,21 @@ use App\Http\Controllers\FormsController;
 |
 */
 
-Route::get('/', function () {
-    return redirect('dashboard');
-});
+
+
+
+Route::resource('forms', FormsController::class);
+
+
+
 
 
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth'])->name('dashboard');
 
-Route::resource('forms', FormsController::class);
-
-Route::get('/forms/create', function () {
-    return view('forms.create');
-})->middleware(['auth'])->name('forms.create');
+Route::get('/', function () {
+    return redirect('dashboard');
+});
 
 require __DIR__ . '/auth.php';

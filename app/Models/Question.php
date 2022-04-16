@@ -9,7 +9,7 @@ class Question extends Model
 {
     use HasFactory;
 
-    protected $protected = [
+    protected $fillable = [
         'form_id', 'question', 'answer_type', 'required'
     ];
 
