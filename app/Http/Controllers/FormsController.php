@@ -26,9 +26,23 @@ class FormsController extends Controller
                 'title' => 'required|min:3|max:144',
                 'expires_at' => 'required|date',
                 'auth_required',
+
             ],
         );
 
+        $validatedQ = $request->validate(
+            [
+                'question' => 'required|min:3|max:144',
+                'answer_type' => 'required',
+                'required',
+            ],
+        );
+
+        $validatedC = $request->validate(
+            [
+                'choice' => 'required|min:3|max:144',
+            ],
+        );
         $validated["created_by"] = Auth::id();
 
 
