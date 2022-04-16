@@ -41,7 +41,7 @@ class DatabaseSeeder extends Seeder
             );
         }
 
-        $forms = Form::factory($faker->numberBetween(6, 12))->create();
+        $forms = Form::factory($faker->numberBetween(30, 60))->create();
         $forms->each(
             function ($form) use (&$users) {
                 if ($users->isNotEmpty()) {
@@ -60,21 +60,26 @@ class DatabaseSeeder extends Seeder
 
             foreach ($questions as $question) {
                 if ($question->answer_type == 'TEXTAREA') {
-                    Answer::factory(1)->create([
-                        'question_id' => $question->id,
-                        'user_id' => $users->random()->id,
-                        'answer' => $faker->text,
-                    ]);
+                    for ($i = 1; $i <= $faker->numberBetween(1, 9); $i++) {
+                        Answer::factory()->create([
+                            'question_id' => $question->id,
+                            'user_id' => $users->random()->id,
+                            'answer' => $faker->text($faker->numberBetween(10, 20)),
+                        ]);
+                    }
                 } elseif ($question->answer_type == 'ONE_CHOICE') {
                     $choices_number = $faker->numberBetween(2, 5);
                     Choice::factory($choices_number)->create([
                         'question_id' => $question->id,
                     ]);
-                    Answer::factory(1)->create([
-                        'question_id' => $question->id,
-                        'user_id' => $users->random()->id,
-                        'choice_id' => $faker->numberBetween(1, $choices_number)
-                    ]);
+
+                    for ($i = 1; $i <= $faker->numberBetween(1, 9); $i++) {
+                        Answer::factory()->create([
+                            'question_id' => $question->id,
+                            'user_id' => $users->random()->id,
+                            'choice_id' => $question->choices->random()->id,
+                        ]);
+                    }
                 } elseif ($question->answer_type == 'MULTIPLE_CHOICES') {
                     $choices_number = $faker->numberBetween(2, 5);
                     Choice::factory($choices_number)->create([
@@ -87,7 +92,7 @@ class DatabaseSeeder extends Seeder
                         Answer::factory(1)->create([
                             'question_id' => $question->id,
                             'user_id' => $user_id,
-                            'choice_id' => $faker->unique(true)->numberBetween(1, $choices_number)
+                            'choice_id' => $question->choices->random()->id,
                         ]);
                     }
                 }

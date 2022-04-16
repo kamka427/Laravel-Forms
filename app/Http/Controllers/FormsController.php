@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Form;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Auth;
 
@@ -21,14 +22,27 @@ class FormsController extends Controller
         ]);
     }
 
-    public function create()
+    public function show(Form $form)
     {
-        return view('forms.create');
+        return view('forms.show', [
+            'form' => $form
+
+        ]);
+    }
+
+    public function edit(Form $form)
+    {
+        return view('forms.edit', [
+            'form' => $form
+        ]);
     }
 
 
 
-
+    public function create()
+    {
+        return view('forms.create');
+    }
 
     public function store(Request $request)
     {
@@ -73,20 +87,7 @@ class FormsController extends Controller
             }
         }
 
-
-
-
-
-
-
         $request->session()->flash('form-created', $form);
         return redirect()->route('dashboard', $form);
-    }
-
-    public function show(Form $form)
-    {
-        return view('form.show', [
-            'form' => $form
-        ]);
     }
 }
