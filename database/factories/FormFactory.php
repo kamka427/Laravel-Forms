@@ -17,7 +17,7 @@ class FormFactory extends Factory
     {
         return [
             'title' => Str::ucfirst($this->faker->words($this->faker->numberBetween(3, 8), true)),
-            'expires_at' => $this->faker->dateTimeBetween('+1 week', '+1 year'),
+            'expires_at' => $this->faker->dateTimeBetween('+1 week', '+1 year')->format('Y-m-d H:i'),
             'auth_required' => $this->faker->boolean(),
         ];
     }

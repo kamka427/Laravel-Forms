@@ -18,7 +18,7 @@ use App\Http\Controllers\FormsController;
 
 
 
-Route::resource('forms', FormsController::class);
+// Route::resource('forms', FormsController::class);
 
 
 
@@ -30,6 +30,14 @@ Route::get('/dashboard', function () {
 
 Route::get('/', function () {
     return redirect('dashboard');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::resource('forms', FormsController::class);
+    Route::get(
+        '/fill/{forms}',
+        [FormsController::class, 'fill']
+    )->name('forms.fill');
 });
 
 require __DIR__ . '/auth.php';

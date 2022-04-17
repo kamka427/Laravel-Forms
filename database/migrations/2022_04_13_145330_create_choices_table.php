@@ -15,7 +15,7 @@ class CreateChoicesTable extends Migration
     {
         Schema::create('choices', function (Blueprint $table) {
             $table->id();
-            $table->integer('question_id');
+            $table->unsignedBigInteger('question_id');
             $table->string('choice', 255);
             $table->timestamps();
 

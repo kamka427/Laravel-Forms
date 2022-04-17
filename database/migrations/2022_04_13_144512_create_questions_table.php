@@ -15,7 +15,7 @@ class CreateQuestionsTable extends Migration
     {
         Schema::create('questions', function (Blueprint $table) {
             $table->id();
-            $table->integer('form_id');
+            $table->unsignedBigInteger('form_id');
             $table->string('question', 255);
             $table->enum('answer_type', ['TEXTAREA', 'ONE_CHOICE', 'MULTIPLE_CHOICES']);
             $table->boolean('required')->default(false);
