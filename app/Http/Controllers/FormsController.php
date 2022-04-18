@@ -53,62 +53,41 @@ class FormsController extends Controller
                 'expires_at' => 'required|date|after_or_equal:today',
                 'groups' => 'required|array|min:1',
                 'groups.*.*.question' => 'required|min:3|max:144',
-                'groups.*.*.choices.*.choice' => 'min:3|max:144',
-                'groups.*.*.choices' => 'array|min:2',
+                'groups.*.*.choices.*.choice' => 'min:1|max:144',
+                'groups.*.*.choices' => 'array|min:1',
             ],
         );
 
-        $validated['auth_required'] = $request->has('auth_required');
-        $validated["created_by"] = Auth::id();
-
-
-        $form->update($validated);
-        //if question does not exist anymore, delete it
-        // foreach ($request->groups as $group) {
-        //     foreach ($group as $key => $subgroup) {
-        //         $question["form_id"] = $form->id;
-        //         $question["question"] = $subgroup["question"];
-        //         if ($key == "textarea") {
-        //             $question["answer_type"] = "TEXTAREA";
-        //         } elseif ($key == "onechoice") {
-        //             $question["answer_type"] = "ONE_CHOICE";
-        //         } elseif ($key == "mulchoice") {
-        //             $question["answer_type"] = "MULTIPLE_CHOICES";
-        //         }
-        //         echo $subgroup["id"];
-        //         $question["required"] = isset($subgroup["required"]) ? 1 : 0;
-        //         $form->questions()->where("question_id", $subgroup["id"])->update($question);
-        //         if (isset($subgroup["choices"]))
-        //             foreach ($subgroup["choices"] as $opt) {
-        //                 $choice["question_id"] =  $form->questions()->where("id", $subgroup["id"])->id;
-        //                 $choice["choice"] = $opt["choice"];
-        //             }
-        //         $form->questions()->where("id", $subgroup["id"])->first()->choices()->where("id", $opt["id"])->update($choice);
-        //     }
-        // }
-        $form->questions()->delete();
-        foreach ($request->groups as $group) {
-            foreach ($group as $key => $subgroup) {
-                $question["form_id"] = $form->id;
-                $question["question"] = $subgroup["question"];
-                if ($key == "textarea") {
-                    $question["answer_type"] = "TEXTAREA";
-                } elseif ($key == "onechoice") {
-                    $question["answer_type"] = "ONE_CHOICE";
-                } elseif ($key == "mulchoice") {
-                    $question["answer_type"] = "MULTIPLE_CHOICES";
-                }
-                $question["required"] = isset($subgroup["required"]) ? 1 : 0;
-                $created_question = \App\Models\Question::create($question);
+        $form->auth_required = $request->has('auth_required');
+        $form->created_by = Auth::id();
+        $question_ids = [];
+        $choice_ids = [];
+        foreach ($request->groups as $id => $group) {
+            foreach ($group as $type => $subgroup) {
+                $question = $form->questions()->findOrNew($id);
+                $question->form_id = $form->id;
+                $question->question = $subgroup["question"];
+                $question->answer_type = $type;
+                $question->required = isset($subgroup["required"]) ? 1 : 0;
+                $question = $form->questions()->save($question);
+                $question_ids[] = $question->id;
                 if (isset($subgroup["choices"]))
-                    foreach ($subgroup["choices"] as $opt) {
-                        $choice["question_id"] = $created_question->id;
-                        $choice["choice"] = $opt["choice"];
-                        \App\Models\Choice::create($choice);
+                    foreach ($subgroup["choices"] as $id => $opt) {
+                        $choice = $question->choices()->findOrNew($id);
+                        $choice->question_id = $question->id;
+                        $choice->choice = $opt["choice"];
+                        $choice = $question->choices()->save($choice);
+                        $choice_ids[] = $choice->id;
                     }
             }
         }
 
+        $form->questions()->WhereNotIn('id', $question_ids)->delete();
+        $form->questions()->each(function ($question) use ($choice_ids) {
+            $question->choices()->WhereNotIn('id', $choice_ids)->delete();
+        });
+
+        $form->save($validated);
 
 
         return redirect()->route('forms.show', $form->id);

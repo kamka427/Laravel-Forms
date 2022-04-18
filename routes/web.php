@@ -35,7 +35,7 @@ Route::get('/', function () {
 Route::middleware(['auth'])->group(function () {
     Route::resource('forms', FormsController::class);
     Route::get(
-        '/fill/{forms}',
+        '/forms/fill/{forms}',
         [FormsController::class, 'fill']
     )->name('forms.fill');
 });
