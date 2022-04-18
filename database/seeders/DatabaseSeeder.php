@@ -30,9 +30,8 @@ class DatabaseSeeder extends Seeder
         DB::table('choices')->truncate();
 
         $users = collect();
-        $users_count = $faker->numberBetween(5, 10);
 
-        for ($i = 1; $i <= $users_count; $i++) {
+        for ($i = 1; $i <= $faker->numberBetween(7, 14); $i++) {
             $users->add(
                 User::factory()->create([
                     'name' => 'user' . $i,
@@ -41,59 +40,85 @@ class DatabaseSeeder extends Seeder
             );
         }
 
-        $forms = Form::factory($faker->numberBetween(30, 60))->create();
-        $forms->each(
-            function ($form) use (&$users) {
-                if ($users->isNotEmpty()) {
-                    $form->creator()->associate($users->random());
-                    $form->save();
+        $forms = collect();
+        foreach ($users as $user) {
+            for ($i = 0; $i < $faker->numberBetween(6, 24); $i++) {
+                $forms->add(
+                    Form::factory()->create([
+                        'created_by' => $user->id,
+                    ])
+                );
+            }
+        }
+
+        $questions = collect();
+        foreach ($forms as $form) {
+            for ($i = 0; $i < $faker->numberBetween(5, 10); $i++) {
+                $questions->add(
+                    Question::factory()->create([
+                        'form_id' => $form->id,
+                    ])
+                );
+            }
+        }
+
+        $choices = collect();
+        foreach ($questions as $question) {
+            if ($question->answer_type !== 'TEXTAREA') {
+                for ($i = 0; $i < $faker->numberBetween(5, 10); $i++) {
+                    $choices->add(
+                        Choice::factory()->create([
+                            'question_id' => $question->id,
+                        ])
+                    );
                 }
             }
-        );
-
-        foreach ($forms as $form) {
+        }
 
 
-            $questions = Question::factory($faker->numberBetween(6, 12))->create([
-                'form_id' => $form->id,
-            ]);
-
+        $answers = collect();
+        for ($i = 0; $i < $faker->numberBetween(7, $user->count()); $i++) {
             foreach ($questions as $question) {
-                if ($question->answer_type == 'TEXTAREA') {
-                    for ($i = 1; $i <= $faker->numberBetween(1, 9); $i++) {
-                        Answer::factory()->create([
-                            'question_id' => $question->id,
-                            'user_id' => $users->random()->id,
-                            'answer' => $faker->text($faker->numberBetween(10, 20)),
-                        ]);
+                if ($question->form->auth_required) {
+                    $filler = $users->random();
+                } else {
+                    $is_guest = $faker->boolean(20);
+                    $filler = $is_guest ? null : $users->random();
+                }
+                if (!$question->required) {
+                    if ($faker->boolean(50)) {
+                        continue;
                     }
-                } elseif ($question->answer_type == 'ONE_CHOICE') {
-                    $choices_number = $faker->numberBetween(2, 5);
-                    Choice::factory($choices_number)->create([
-                        'question_id' => $question->id,
-                    ]);
+                }
 
-                    for ($i = 1; $i <= $faker->numberBetween(1, 9); $i++) {
+                if ($question->answer_type === 'TEXTAREA') {
+                    $answers->add(
                         Answer::factory()->create([
                             'question_id' => $question->id,
-                            'user_id' => $users->random()->id,
-                            'choice_id' => $question->choices->random()->id,
-                        ]);
-                    }
-                } elseif ($question->answer_type == 'MULTIPLE_CHOICES') {
-                    $choices_number = $faker->numberBetween(2, 5);
-                    Choice::factory($choices_number)->create([
-                        'question_id' => $question->id,
-                    ]);
-                    $answers_number = $faker->numberBetween(2, $choices_number);
-                    $user_id = $users->random()->id;
-                    for ($i = 0; $i < $answers_number; $i++) {
-                        // egy choice csak egyszer lehet megjelölve
-                        Answer::factory(1)->create([
+                            'user_id' => $filler ? $filler->id : null,
+                            'answer' => $faker->text($faker->numberBetween(10, 20)),
+
+                        ])
+                    );
+                } elseif ($question->answer_type === 'ONE_CHOICE') {
+                    $answers->add(
+                        Answer::factory()->create([
                             'question_id' => $question->id,
-                            'user_id' => $user_id,
+                            'user_id' => $filler ? $filler->id : null,
                             'choice_id' => $question->choices->random()->id,
-                        ]);
+                        ])
+                    );
+                } elseif ($question->answer_type === 'MULTIPLE_CHOICES') {
+                    $available_choices = $question->choices->pluck('id')->toArray();
+                    for ($j = 0; $j < $faker->numberBetween(1, $question->choices->count()); $j++) {
+                        shuffle($available_choices);
+                        $answers->add(
+                            Answer::factory()->create([
+                                'question_id' => $question->id,
+                                'user_id' => $filler ? $filler->id : null,
+                                'choice_id' => array_pop($available_choices),
+                            ])
+                        );
                     }
                 }
             }

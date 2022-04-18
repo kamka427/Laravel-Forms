@@ -32,17 +32,13 @@ class FormController extends Controller
 
     public function edit(Form $form)
     {
-        return view('forms.edit', [
+        return view('forms.create-update', [
             'form' => $form
         ]);
     }
 
     public function fill($id)
     {
-
-
-
-
         $form = Form::findOrFail($id);
         if ($form->auth_required && !Auth::check()) {
             return redirect('/login');
@@ -97,10 +93,9 @@ class FormController extends Controller
     }
 
 
-    public function update(Request $request, Form $form)
+    public function update(Request $request, $id)
     {
-        if (!$request->has('groups.*.ONE_CHOICE'))
-            $request->groups = [];
+
         $validated = $request->validate(
             [
                 'title' => 'required|min:3|max:144',
@@ -111,7 +106,68 @@ class FormController extends Controller
                 'groups.*.*.choices' => 'array|min:1|required_with:groups.*.onechoice',
             ],
         );
+        $form = Form::findOrFail($id);
+        $form->auth_required = $request->has('auth_required');
+        $form->created_by = Auth::id();
+        $form->update($validated);
 
+        $question_ids = [];
+        $choice_ids = [];
+        foreach ($request->groups as $id => $group) {
+            foreach ($group as $type => $subgroup) {
+                $question = $form->questions()->findOrNew($id);
+                $question->form_id = $form->id;
+                $question->question = $subgroup["question"];
+                $question->answer_type = $type;
+                $question->required = isset($subgroup["required"]) ? 1 : 0;
+                $question = $form->questions()->save($question);
+                $question_ids[] = $question->id;
+                if (isset($subgroup["choices"]))
+                    foreach ($subgroup["choices"] as $id => $opt) {
+                        $choice = $question->choices()->findOrNew($id);
+                        $choice->question_id = $question->id;
+                        $choice->choice = $opt["choice"];
+                        $choice = $question->choices()->save($choice);
+                        $choice_ids[] = $choice->id;
+                    }
+            }
+        }
+
+        $form->questions()->WhereNotIn('id', $question_ids)->delete();
+        $form->questions()->each(function ($question) use ($choice_ids) {
+            $question->choices()->WhereNotIn('id', $choice_ids)->delete();
+        });
+
+
+
+        return redirect()->route('forms.show', $form->id);
+    }
+
+
+    public function create()
+    {
+        return view('forms.create-update');
+    }
+
+    public function store(Request $request)
+    {
+
+        $validated = $request->validate(
+            [
+                'title' => 'required|min:3|max:144',
+                'expires_at' => 'required|date|after_or_equal:today',
+                'groups' => 'required|array|min:1',
+                'groups.*.*.question' => 'required|min:3|max:144',
+                'groups.*.*.choices.*.choice' => 'min:3|max:144',
+                'groups.*.*.choices' => 'array|min:1|required_with:groups.*.onechoice',
+            ],
+        );
+
+        $validated['auth_required'] = $request->has('auth_required');
+        $validated["created_by"] = Auth::id();
+
+
+        $form = new Form($validated);
         $form->auth_required = $request->has('auth_required');
         $form->created_by = Auth::id();
         $question_ids = [];
@@ -143,60 +199,9 @@ class FormController extends Controller
 
         $form->save($validated);
 
-
-        return redirect()->route('forms.show', $form->id);
-    }
-
-
-    public function create()
-    {
-        return view('forms.create');
-    }
-
-    public function store(Request $request)
-    {
-
-        $validated = $request->validate(
-            [
-                'title' => 'required|min:3|max:144',
-                'expires_at' => 'required|date|after_or_equal:today',
-                'groups' => 'required|array|min:1',
-                'groups.*.*.question' => 'required|min:3|max:144',
-                'groups.*.*.choices.*.choice' => 'min:3|max:144',
-                'groups.*.*.choices' => 'array|min:1|required_with:groups.*.onechoice',
-            ],
-        );
-
-        $validated['auth_required'] = $request->has('auth_required');
-        $validated["created_by"] = Auth::id();
-
-
-        $form = Form::create($validated);
-        foreach ($request->groups as $group) {
-            foreach ($group as $key => $subgroup) {
-                $question["form_id"] = $form->id;
-                $question["question"] = $subgroup["question"];
-                if ($key == "textarea") {
-                    $question["answer_type"] = "TEXTAREA";
-                } elseif ($key == "onechoice") {
-                    $question["answer_type"] = "ONE_CHOICE";
-                } elseif ($key == "mulchoice") {
-                    $question["answer_type"] = "MULTIPLE_CHOICES";
-                }
-                $question["required"] = isset($subgroup["required"]) ? 1 : 0;
-                $created_question = \App\Models\Question::create($question);
-                if (isset($subgroup["choices"]))
-                    foreach ($subgroup["choices"] as $opt) {
-                        $choice["question_id"] = $created_question->id;
-                        $choice["choice"] = $opt["choice"];
-                        \App\Models\Choice::create($choice);
-                    }
-            }
-        }
-
         $request->session()->flash(
             'form-created',
-            url("/forms/{$form->id}")
+            url("/forms/{$form->id}" / fill)
         );
         return redirect()->route('dashboard', $form);
     }

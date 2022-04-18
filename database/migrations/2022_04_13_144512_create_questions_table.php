@@ -20,6 +20,8 @@ class CreateQuestionsTable extends Migration
             $table->enum('answer_type', ['TEXTAREA', 'ONE_CHOICE', 'MULTIPLE_CHOICES']);
             $table->boolean('required')->default(false);
             $table->timestamps();
+
+            $table->foreign('form_id')->references('id')->on('forms')->onDelete('cascade');
         });
     }
 

@@ -13,8 +13,6 @@ class AnswerFactory extends Factory
      */
     public function definition()
     {
-        return [
-           // 'text' => $this->faker->text,
-        ];
+        return [];
     }
 }
