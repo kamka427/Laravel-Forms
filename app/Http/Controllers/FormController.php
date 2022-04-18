@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Answer;
 use App\Models\Form;
-use App\Models\Question;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Auth;
 
 
-class FormsController extends Controller
+class FormController extends Controller
 {
     public function __construct()
     {
@@ -38,15 +37,70 @@ class FormsController extends Controller
         ]);
     }
 
-    public function fill(Form $form)
+    public function fill($id)
     {
+
+
+
+
+        $form = Form::findOrFail($id);
+        if ($form->auth_required && !Auth::check()) {
+            return redirect('/login');
+        }
+        //if expired
+        if ($form->expired) {
+            return redirect('/dashboard')->with('error', 'This form has expired');
+        }
+
         return view('forms.fill', [
             'form' => $form
         ]);
     }
 
+    public function response(Request $request)
+    {
+        // $form = Form::findOrFail($request->form_id);
+        // // $user = User::findOrFail(Auth::id());
+
+        $validated = $request->validate([
+            'groups.*.*.answer' => 'required_with:groups.*.TEXTAREA',
+            'groups.*.*.choice' => 'required_with:groups.*.ONE_CHOICE',
+            'groups.*.*.choices' => 'array|min:1|required_with:groups.*.MULTIPLE_CHOICES',
+
+        ]);
+
+        // $form = Form::findOrFail($request->form_id);
+        $user = Auth::user();
+
+        foreach ($request->groups as $id => $group) {
+            foreach ($group as $type => $question) {
+                $answer = new Answer();
+                $answer->question_id = $id;
+                if ($user) {
+                    $answer->user_id = $user->id;
+                }
+                if ($type == 'TEXTAREA') {
+                    $answer->answer = $question['answer'];
+                    $answer->save();
+                } elseif ($type == 'ONE_CHOICE') {
+                    $answer->choice_id = $question['choice'];
+                    $answer->save();
+                } elseif ($type == 'MULTIPLE_CHOICES') {
+                    foreach ($request->question['choices'] as $choice) {
+                        $answer->choice_id = $choice;
+                        $answer->save();
+                    }
+                }
+            }
+        }
+        return redirect('/dashboard')->with('success', 'Form submitted successfully');
+    }
+
+
     public function update(Request $request, Form $form)
     {
+        if (!$request->has('groups.*.ONE_CHOICE'))
+            $request->groups = [];
         $validated = $request->validate(
             [
                 'title' => 'required|min:3|max:144',
@@ -54,7 +108,7 @@ class FormsController extends Controller
                 'groups' => 'required|array|min:1',
                 'groups.*.*.question' => 'required|min:3|max:144',
                 'groups.*.*.choices.*.choice' => 'min:1|max:144',
-                'groups.*.*.choices' => 'array|min:1',
+                'groups.*.*.choices' => 'array|min:1|required_with:groups.*.onechoice',
             ],
         );
 
@@ -109,7 +163,7 @@ class FormsController extends Controller
                 'groups' => 'required|array|min:1',
                 'groups.*.*.question' => 'required|min:3|max:144',
                 'groups.*.*.choices.*.choice' => 'min:3|max:144',
-                'groups.*.*.choices' => 'array|min:2',
+                'groups.*.*.choices' => 'array|min:1|required_with:groups.*.onechoice',
             ],
         );
 

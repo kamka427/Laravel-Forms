@@ -44,9 +44,6 @@
                         }
                     }
                 }
-
-
-
         }
 
     @endphp
@@ -66,7 +63,7 @@
                         </div>
                     @endif
                     <form method="POST" action="{{ route('forms.update', $form) }}">
-                        @method('put')
+                        @method('patch')
 
                         @csrf
                         <div class="container flex flex-col gap-y-4">

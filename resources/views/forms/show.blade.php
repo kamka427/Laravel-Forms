@@ -48,7 +48,7 @@
                             @if ($question->answer_type === 'TEXTAREA')
                                 @forelse ($question->answers as $answer)
                                     <p class="text-sm">
-                                        {{ $answer->user->name ? $answer->user->name : 'Vendég' }}:
+                                        {{ $answer->user->name ?? 'Vendég' }}:
                                         {{ $answer->answer }}</p>
                                 @empty
                                     <p class="text-sm">No answers yet.</p>

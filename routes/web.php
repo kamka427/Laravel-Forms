@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\FormsController;
+use App\Http\Controllers\FormController;
 
 
 /*
@@ -16,14 +16,6 @@ use App\Http\Controllers\FormsController;
 */
 
 
-
-
-// Route::resource('forms', FormsController::class);
-
-
-
-
-
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth'])->name('dashboard');
@@ -32,12 +24,24 @@ Route::get('/', function () {
     return redirect('dashboard');
 });
 
-Route::middleware(['auth'])->group(function () {
-    Route::resource('forms', FormsController::class);
-    Route::get(
-        '/forms/fill/{forms}',
-        [FormsController::class, 'fill']
-    )->name('forms.fill');
-});
+Route::middleware(['auth'])->group(
+    function () {
+        Route::resource('forms', FormController::class);
+
+        Route::get(
+            '/forms/{forms}/fill',
+            [FormController::class, 'fill']
+        )->name('forms.fill')->withoutMiddleware('auth');
+        Route::post(
+            '/response',
+            [FormController::class, 'response']
+        )->name('forms.response')->withoutMiddleware('auth');
+        // Route::POST(
+        //     '/forms/response',
+        //     [FormController::class, 'response']
+        // )->name('forms.response');
+
+    }
+);
 
 require __DIR__ . '/auth.php';
