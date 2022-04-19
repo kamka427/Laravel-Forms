@@ -38,10 +38,10 @@ Route::middleware(['auth'])->group(
             [FormController::class, 'response']
         )->name('forms.response')->withoutMiddleware('auth');
         Route::delete(
-            '/forms/{form}',
+            '/forms/{form}/delete',
             [FormController::class, 'destroy']
         )->name('forms.destroy');
-        Route::patch('/forms/{form}', [FormController::class, 'restore'])->name('forms.restore');
+        Route::patch('/forms/{form}/restore', [FormController::class, 'restore'])->name('forms.restore');
     }
 );
 

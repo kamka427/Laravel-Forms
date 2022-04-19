@@ -15,7 +15,7 @@
 
     @isset($form)
         @php
-            $groups = null;
+            $groups = [];
             if ($form->questions->count() > 0) {
                 $questions = $form->questions;
                 foreach ($questions as $question) {
@@ -58,6 +58,12 @@
             $groups = [];
         @endphp
     @endisset
+
+    @error('groups')
+        @php
+            $groups = [];
+        @endphp
+    @enderror
 
 
 
@@ -106,11 +112,15 @@
                                     value="{{ old('title') }}" @endisset />
                             </fieldset>
                             <fieldset>
+                                @error('auth_required')
+                                    <p class="text-red-500 text-xs italic mt-4">
+                                        {{ $message }}
+                                    </p>
+                                @enderror
                                 <x-label class="" for="auth_required">
-                                   Csak regisztrált felhasználók számára elérhető:
+                                    Csak regisztrált felhasználók számára elérhető:
                                     <input class="rounded" type="checkbox" name="auth_required"
-                                        id="auth_required"
-                                        value="1"
+                                        id="auth_required" value="1"
                                         @isset($form) {{ old('auth_required', $form->auth_required) ? 'checked' : '' }}>
                                     @else
                                     {{ old('auth_required') ? 'checked' : '' }}> @endisset
@@ -143,13 +153,18 @@
                                             <div class="" id="group_{{ $uuid }}">
                                                 <h3 class="">Textarea</h3>
                                                 <fieldset>
+                                                    @error('groups.' . $uuid . '.TEXTAREA.required')
+                                                        <p class="text-red-500 text-xs italic mt-4">
+                                                            {{ $message }}
+                                                        </p>
+                                                    @enderror
                                                     <x-label class=""
                                                         for="required_{{ $uuid }}]">
                                                         Kötelező kitölteni:
                                                         <input class="rounded" type="checkbox"
                                                             name="groups[{{ $uuid }}][TEXTAREA][required]"
                                                             id="required_{{ $uuid }}"
-                                                            {{ array_key_exists('required', $group['TEXTAREA']) ? 'checked' : '' }}>
+                                                            value="1" {{ array_key_exists('required', $group['TEXTAREA']) ? 'checked' : '' }}>
                                                     </x-label>
                                                 </fieldset>
                                                 <fieldset>
@@ -178,11 +193,17 @@
                                             <div class="" id="group_{{ $uuid }}">
                                                 <h3 class="">One-choice</h3>
                                                 <fieldset>
+                                                    @error('groups.' . $uuid . '.ONE_CHOICE.required')
+                                                        <p class="text-red-500 text-xs italic mt-4">
+                                                            {{ $message }}
+                                                        </p>
+                                                    @enderror
                                                     <x-label class="" for="required_{{ $uuid }}">
                                                         Kötelező kitölteni:
                                                         <input class="rounded" type="checkbox"
                                                             name="groups[{{ $uuid }}][ONE_CHOICE][required]"
                                                             id="required_{{ $uuid }}"
+                                                            value="1"
                                                             {{ array_key_exists('required', $group['ONE_CHOICE']) ? 'checked' : '' }}>
                                                     </x-label>
                                                 </fieldset>
@@ -252,11 +273,17 @@
                                             <div class="" id="group_{{ $uuid }}">
                                                 <h3 class="">Multiple-choice</h3>
                                                 <fieldset>
+                                                    @error('groups.' . $uuid . '.MULTIPLE_CHOICES.required')
+                                                        <p class="text-red-500 text-xs italic mt-4">
+                                                            {{ $message }}
+                                                        </p>
+                                                    @enderror
                                                     <x-label class="" for="required_{{ $uuid }}">
                                                         Kötelező kitölteni:
                                                         <input class="rounded" type="checkbox"
                                                             name="groups[{{ $uuid }}][MULTIPLE_CHOICES][required]"
                                                             id="required_{{ $uuid }}"
+                                                            value="1"
                                                             {{ array_key_exists('required', $group['MULTIPLE_CHOICES']) ? 'checked' : '' }}>
                                                     </x-label>
                                                 </fieldset>
@@ -340,10 +367,10 @@
                                 </div>
                                 <div>
                                     @isset($form)
-                                    <x-button class="ml-3 bg-green-600">Űrlap mentése</x-button>
+                                        <x-button class="ml-3 bg-green-600">Űrlap mentése</x-button>
                                     @else
-                                    <x-button class="ml-3 bg-green-600">Űrlap mentése</x-button>
-                                    <x-button type="reset" class="ml-3 bg-red-600">Űrlap törlése</x-button>
+                                        <x-button class="ml-3 bg-green-600">Űrlap mentése</x-button>
+                                        <x-button type="reset" class="ml-3 bg-red-600">Űrlap törlése</x-button>
                                     @endisset
                                 </div>
                             </div>
@@ -366,7 +393,7 @@
                     <x-label class="" for="required_#ID#">
                         Kötelező kitölteni:
                         <input class="rounded" type="checkbox" name="groups[#ID#][TEXTAREA][required]"
-                        id="required_#ID#">
+                        id="required_#ID#" value="1">
                     </x-label>
                 </fieldset>
                 <fieldset>
@@ -386,7 +413,7 @@
                     <x-label class="" for="required_#ID#">
                         Kötelező kitölteni:
                         <input class="rounded" type="checkbox" name="groups[#ID#][ONE_CHOICE][required]"
-                        id="required_#ID#">
+                        id="required_#ID#" value="1">
                     </x-label>
                 </fieldset>
 				<fieldset>
@@ -410,7 +437,7 @@
                     <x-label class="" for="required_#ID#">
                         Kötelező kitölteni:
                         <input class="rounded" type="checkbox" name="groups[#ID#][MULTIPLE_CHOICES][required]"
-                        id="required_#ID#">
+                        id="required_#ID#" value="1">
                     </x-label>
                 </fieldset>
 				<fieldset>

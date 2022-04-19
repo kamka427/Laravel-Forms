@@ -40,21 +40,19 @@
 
                             @foreach ($form->questions as $question)
                                 <div class="p-6 bg-white border-b border-gray-200 shadow-sm sm:rounded-lg">
-                                    {{-- <h2 class="text-xl">{{ $question->question }}</h2> --}}
                                     @if ($question->answer_type === 'TEXTAREA')
-
-                                    <fieldset>
-                                        <label for="question_{{ $question->id }}" class="text-lg">
-                                            {{ $question->question }}
-                                            {{ $question->required ? '*' : '' }}</label>
-                                            @error('groups.' . $question->id .'.'. $question->required .'.TEXTAREA.answer')
+                                        <fieldset>
+                                            <label for="question_{{ $question->id }}" class="text-lg">
+                                                {{ $question->question }}
+                                                {{ $question->required ? '*' : '' }}</label>
+                                            @error('groups.' . $question->id . '.' . $question->required .
+                                                '.TEXTAREA.answer')
                                                 <div class="alert alert-danger text-red-600" role="alert">
                                                     {{ $message }}
                                                 </div>
                                             @enderror
                                             <input id="question_{{ $question->id }}" type="text"
-                                            class="rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 block mt-1 w-full @error('groups.' . $question->id .'.'. $question->required .'.TEXTAREA.answer') border-red-600 @enderror"
-
+                                                class="rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 block mt-1 w-full @error('groups.' . $question->id . '.' . $question->required . '.TEXTAREA.answer') border-red-600 @enderror"
                                                 name="groups[{{ $question->id }}][{{ $question->required }}][TEXTAREA][answer]"
                                                 value="{{ old('groups.' . $question->id . '.' . $question->required . '.TEXTAREA.answer') }}">
 
@@ -64,17 +62,13 @@
                                             <label for="question_{{ $question->id }}" class="text-lg">
                                                 {{ $question->question }}
                                                 {{ $question->required ? '*' : '' }}</label>
-                                            @error('groups.' . $question->id .'.'. $question->required .'.ONE_CHOICE.choice')
+                                            @error('groups.' . $question->id . '.' . $question->required .
+                                                '.ONE_CHOICE.choice')
                                                 <div class="alert alert-danger text-red-600" role="alert">
                                                     {{ $message }}
                                                 </div>
                                             @enderror
                                             @foreach ($question->choices as $choice)
-
-
-                                                @php
-                                                    var_dump(old('groups.' . $question->id . '.' . $question->required . '.ONE_CHOICE.choice'));
-                                                @endphp
                                                 <div class="flex flex-col">
                                                     <fieldset>
 
@@ -98,7 +92,8 @@
                                             <label for="question_{{ $question->id }}" class="text-lg">
                                                 {{ $question->question }}
                                                 {{ $question->required ? '*' : '' }}</label>
-                                                @error('groups.' . $question->id .'.'. $question->required .'.MULTIPLE_CHOICES.choices')
+                                            @error('groups.' . $question->id . '.' . $question->required .
+                                                '.MULTIPLE_CHOICES.choices')
                                                 <div class="alert alert-danger text-red-600" role="alert">
                                                     {{ $message }}
                                                 </div>
@@ -124,9 +119,7 @@
                                     @endif
                                 </div>
                             @endforeach
-                            <input type="hidden"
-                                                name="groups[662][1][ONE_CHOICE][choice]"
-                                                value="7">
+
                             <div class="py-6 text-center">
                                 <x-button class="ml-3 bg-green-600">Küldés</x-button>
                                 <x-button type="reset" class="ml-3 bg-red-600">Törlés</x-button>

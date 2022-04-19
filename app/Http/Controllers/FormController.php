@@ -108,7 +108,7 @@ class FormController extends Controller
             $question = $form->questions()->get()[$i];
             if ($question->answer_type === 'ONE_CHOICE') {
                 if ($question->required) {
-                    $choice = $request->groups[$i]['1']['ONE_CHOICE']['choice'];
+                    $choice = $request->groups[$question->id]['1']['ONE_CHOICE']['choice'];
                     if (!$question->choices()->find($choice)) {
                         abort(403, 'Nem létező válasz!');
                     }
@@ -139,7 +139,7 @@ class FormController extends Controller
             }
         }
 
-        //Menézzük, hogy manipulálva lett-e a válasz azzal, hogy opcionális és kötelező mezőként manipuláljuk a választ ONE_CHOICE típusú mezőknél.
+        //Megnézzük, hogy manipulálva lett-e a válasz azzal, hogy opcionális és kötelező mezőként manipuláljuk a választ ONE_CHOICE típusú mezőknél.
         for ($i = 0; $i < count($form->questions); $i++) {
             $question = $form->questions()->get()[$i];
             $choice1 = $request->groups[$question->id]['0']['ONE_CHOICE']['choice'] ?? null;
@@ -161,9 +161,9 @@ class FormController extends Controller
                 foreach ($group as $type => $question) {
                     $answer = new Answer();
                     $answer->question_id = $id;
-                    if ($user) {
+                    if ($user)
                         $answer->user_id = $user->id;
-                    }
+
                     if ($type === 'TEXTAREA') {
                         if (strlen($question['answer']) != 0) {
                             $answer->answer = $question['answer'];
@@ -174,6 +174,10 @@ class FormController extends Controller
                         $answer->save();
                     } elseif ($type === 'MULTIPLE_CHOICES') {
                         foreach ($question['choices'] as $choice) {
+                            $answer = new Answer();
+                            $answer->question_id = $id;
+                            if ($user)
+                                $answer->user_id = $user->id;
                             $answer->choice_id = $choice;
                             $answer->save();
                         }
@@ -210,8 +214,9 @@ class FormController extends Controller
             [
                 'title' => 'required|min:3|max:144',
                 'auth_required' => 'nullable|boolean',
-                'expires_at' => 'required|date|after_or_equal:today',
+                'expires_at' => 'required|date|after_or_equal:tomorrow',
                 'groups' => 'required|array|min:1',
+                'groups.*.*.required' => 'nullable|boolean',
                 'groups.*.*.question' => 'required|min:3|max:144',
                 'groups.*.*.choices.*.choice' => 'min:1|max:144',
                 'groups.*.*.choices' => 'array|min:1|required_with:groups.*.ONE_CHOICE,groups.*.MULTIPLE_CHOICES',
@@ -263,8 +268,9 @@ class FormController extends Controller
             [
                 'title' => 'required|min:3|max:144',
                 'auth_required' => 'nullable|boolean',
-                'expires_at' => 'required|date|after_or_equal:today',
+                'expires_at' => 'required|date|after_or_equal:tomorrow',
                 'groups' => 'required|array|min:1',
+                'groups.*.*.required' => 'nullable|boolean',
                 'groups.*.*.question' => 'required|min:3|max:144',
                 'groups.*.*.choices.*.choice' => 'required|min:3|max:144',
                 'groups.*.*.choices' => 'array|min:1|required_with:groups.*.ONE_CHOICE,groups.*.MULTIPLE_CHOICES',
