@@ -15,7 +15,7 @@
 
     @isset($form)
         @php
-        $groups = null;
+            $groups = null;
             if ($form->questions->count() > 0) {
                 $questions = $form->questions;
                 foreach ($questions as $question) {
@@ -298,16 +298,21 @@
                                     @endforeach
                                 @endif
                             </div>
+                            <div class="flex flex-col gap-4 text-center">
                             <div>
-                                <x-button class="ml-3 bg-green-600">{{ __('Űrlap mentése') }}</x-button>
-                                <x-button type="button" id="add-textarea" class="ml-3">
-                                    {{ __('Új kifejtős') }}</x-button>
-                                <x-button type="button" id="add-one-choice" class="ml-3">
-                                    {{ __('Új feleletválasztós egy válasszal') }}
-                                </x-button>
-                                <x-button type="button" id="add-multiple-choices" class="ml-3">
-                                    {{ __('Új feleletválasztós több válasszal') }}
-                                </x-button>
+                                    <x-button type="button" id="add-textarea" class="ml-3">
+                                        {{ __('Új kifejtős') }}</x-button>
+                                    <x-button type="button" id="add-one-choice" class="ml-3">
+                                        {{ __('Új feleletválasztós egy válasszal') }}
+                                    </x-button>
+                                    <x-button type="button" id="add-multiple-choices" class="ml-3">
+                                        {{ __('Új feleletválasztós több válasszal') }}
+                                    </x-button>
+                                </div>
+                                <div>
+                                    <x-button class="ml-3 bg-green-600">{{ __('Űrlap mentése') }}</x-button>
+                                    <x-button class="ml-3 bg-red-600">{{ __('Űrlap törlése') }}</x-button>
+                                </div>
                             </div>
                         </div>
                     </form>

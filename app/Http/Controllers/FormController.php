@@ -6,13 +6,18 @@ use App\Models\Answer;
 use App\Models\Form;
 use Illuminate\Http\Request;
 use Auth;
-
+use DateTime;
 
 class FormController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth')->only(['create', 'fill', 'store', 'edit', 'update', 'destroy']);
+        $this->middleware('auth')->only(['create', 'home', 'fill', 'store', 'edit', 'update', 'destroy']);
+    }
+
+    public function home()
+    {
+        return view('forms.home');
     }
 
     public function index()
@@ -24,6 +29,10 @@ class FormController extends Controller
 
     public function show(Form $form)
     {
+        if ($form->created_by !== Auth::id()) {
+            abort(401);
+        }
+
         return view('forms.show', [
             'form' => $form
 
@@ -32,6 +41,24 @@ class FormController extends Controller
 
     public function edit(Form $form)
     {
+        if ($form->created_by !== Auth::id()) {
+            abort(401);
+        }
+
+        $hasAnswers = false;
+        $questions = $form->questions;
+        foreach ($questions as $question) {
+            $answers = $question->answers;
+            if (count($answers) > 0) {
+                $hasAnswers = true;
+                break;
+            }
+        }
+
+        if ($hasAnswers) {
+            abort(403);
+        }
+
         return view('forms.create-update', [
             'form' => $form
         ]);
@@ -43,10 +70,9 @@ class FormController extends Controller
         if ($form->auth_required && !Auth::check()) {
             return redirect('/login');
         }
-        //if expired
-        if ($form->expired) {
-            return redirect('/dashboard')->with('error', 'This form has expired');
-        }
+
+        // if (new DateTime($form->expires_at < new DateTime(now()))
+
 
         return view('forms.fill', [
             'form' => $form
@@ -58,6 +84,10 @@ class FormController extends Controller
         // $form = Form::findOrFail($request->form_id);
         // // $user = User::findOrFail(Auth::id());
 
+        // $expires = new DateTime($form->expires_at);
+
+
+
         $validated = $request->validate([
             'groups.*.*.answer' => 'required_with:groups.*.TEXTAREA',
             'groups.*.*.choice' => 'required_with:groups.*.ONE_CHOICE',
@@ -65,8 +95,17 @@ class FormController extends Controller
 
         ]);
 
-        // $form = Form::findOrFail($request->form_id);
-        $user = Auth::user();
+        // $form = Form::findOrFail($request->questions->first()->form_id);
+        //if expired return error
+
+        //validálásnál visszajelezni ha lejárt
+        // if ($form->expires_at && new DateTime($form->expires_at) < new DateTime(now())) {
+        //     return redirect('/forms/' . $form->id)->with('error', 'This form has expired');
+        // }
+
+
+
+        $user = Auth::user() ?? null;
 
         foreach ($request->groups as $id => $group) {
             foreach ($group as $type => $question) {
@@ -75,26 +114,44 @@ class FormController extends Controller
                 if ($user) {
                     $answer->user_id = $user->id;
                 }
-                if ($type == 'TEXTAREA') {
+                if ($type === 'TEXTAREA') {
                     $answer->answer = $question['answer'];
                     $answer->save();
-                } elseif ($type == 'ONE_CHOICE') {
+                } elseif ($type === 'ONE_CHOICE') {
                     $answer->choice_id = $question['choice'];
                     $answer->save();
-                } elseif ($type == 'MULTIPLE_CHOICES') {
-                    foreach ($request->question['choices'] as $choice) {
+                } elseif ($type === 'MULTIPLE_CHOICES') {
+                    foreach ($question['choices'] as $choice) {
                         $answer->choice_id = $choice;
                         $answer->save();
                     }
                 }
             }
         }
-        return redirect('/dashboard')->with('success', 'Form submitted successfully');
+        return redirect('/')->with('success', 'Form submitted successfully');
     }
 
 
     public function update(Request $request, $id)
     {
+        $form = Form::findOrFail($id);
+        if ($form->created_by !== Auth::id()) {
+            abort(401);
+        }
+
+        $hasAnswers = false;
+        $questions = $form->questions;
+        foreach ($questions as $question) {
+            $answers = $question->answers;
+            if (count($answers) > 0) {
+                $hasAnswers = true;
+                break;
+            }
+        }
+
+        if ($hasAnswers) {
+            abort(403);
+        }
 
         $validated = $request->validate(
             [
@@ -106,7 +163,6 @@ class FormController extends Controller
                 'groups.*.*.choices' => 'array|min:1|required_with:groups.*.onechoice',
             ],
         );
-        $form = Form::findOrFail($id);
         $form->auth_required = $request->has('auth_required');
         $form->created_by = Auth::id();
         $form->update($validated);
@@ -170,6 +226,7 @@ class FormController extends Controller
         $form = new Form($validated);
         $form->auth_required = $request->has('auth_required');
         $form->created_by = Auth::id();
+        $form->save($validated);
         $question_ids = [];
         $choice_ids = [];
         foreach ($request->groups as $id => $group) {
@@ -197,12 +254,11 @@ class FormController extends Controller
             $question->choices()->WhereNotIn('id', $choice_ids)->delete();
         });
 
-        $form->save($validated);
 
         $request->session()->flash(
             'form-created',
-            url("/forms/{$form->id}" / fill)
+            url("/forms/{$form->id}/fill")
         );
-        return redirect()->route('dashboard', $form);
+        return redirect()->route('forms.home', $form);
     }
 }

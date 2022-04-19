@@ -16,18 +16,19 @@ use App\Http\Controllers\FormController;
 */
 
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth'])->name('dashboard');
+// Route::get('/dashboard', function () {
+//     return view('');
+// })->middleware(['auth'])->name('dashboard');
 
 Route::get('/', function () {
-    return redirect('dashboard');
+    return redirect('forms.home');
 });
 
 Route::middleware(['auth'])->group(
     function () {
         Route::resource('forms', FormController::class);
 
+        Route::get('/', [FormController::class, 'home'])->name('forms.home');
         Route::get(
             '/forms/{forms}/fill',
             [FormController::class, 'fill']
@@ -36,11 +37,6 @@ Route::middleware(['auth'])->group(
             '/response',
             [FormController::class, 'response']
         )->name('forms.response')->withoutMiddleware('auth');
-        // Route::POST(
-        //     '/forms/response',
-        //     [FormController::class, 'response']
-        // )->name('forms.response');
-
     }
 );
 
