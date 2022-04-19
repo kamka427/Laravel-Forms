@@ -12,17 +12,6 @@
                     You're logged in!
                 </div>
             </div>
-            @if (Session::has('form-created'))
-                <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4" role="alert">
-                    <p class="font-bold">
-                        {{ __('Form created successfully!') }} {{ Session::get('form-created') }}
-                    </p>
-                    <p class="text-sm">
-                        {{ __('You can now edit the form.') }}
-                    </p>
-                </div>
-            @endif
-
         </div>
     </div>
 </x-app-layout>

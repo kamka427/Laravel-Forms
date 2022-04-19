@@ -12,20 +12,20 @@
 
                 @auth
 
-                <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                    <x-nav-link :href="route('forms.home')" :active="request()->routeIs('forms.home')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('forms.create')" :active="request()->routeIs('forms.create')">
-                        {{ __('Create') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('forms.index')" :active="request()->routeIs('forms.index')">
-                        {{ __('Manage') }}
-                    </x-nav-link>
-                </div>
+                    <!-- Navigation Links -->
+                    <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                        <x-nav-link :href="route('forms.home')" :active="request()->routeIs('forms.home')">
+                            Főoldal
+                        </x-nav-link>
+                        <x-nav-link :href="route('forms.create')" :active="request()->routeIs('forms.create')">
+                            Létrehozás
+                        </x-nav-link>
+                        <x-nav-link :href="route('forms.index')" :active="request()->routeIs('forms.index')">
+                            Kezelés
+                        </x-nav-link>
+                    </div>
                 @endauth
-                
+
             </div>
 
             <!-- Settings Dropdown -->
@@ -54,8 +54,8 @@
                                 @csrf
 
                                 <x-dropdown-link :href="route('logout')" onclick="event.preventDefault();
-                                                                    this.closest('form').submit();">
-                                    {{ __('Log Out') }}
+                                                                        this.closest('form').submit();">
+                                    Kijelentkezés
                                 </x-dropdown-link>
                             </form>
                         </x-slot>
@@ -63,10 +63,10 @@
                 @else
                     <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex h-16">
                         <x-nav-link :href="route('login')">
-                            {{ __('Login') }}
+                            Bejelentkezés
                         </x-nav-link>
                         <x-nav-link :href="route('register')">
-                            {{ __('Register') }}
+                            Regisztráció
                         </x-nav-link>
                     </div>
 
@@ -92,17 +92,17 @@
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         @auth
 
-        <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('forms.home')" :active="request()->routeIs('forms.home')">
-                {{ __('Dashboard') }}
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('forms.create')" :active="request()->routeIs('forms.create')">
-                {{ __('Create') }}
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('forms.index')" :active="request()->routeIs('forms.index')">
-                {{ __('Manage') }}
-            </x-responsive-nav-link>
-        </div>
+            <div class="pt-2 pb-3 space-y-1">
+                <x-responsive-nav-link :href="route('forms.home')" :active="request()->routeIs('forms.home')">
+                    Főoldal
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('forms.create')" :active="request()->routeIs('forms.create')">
+                    Létrehozás
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('forms.index')" :active="request()->routeIs('forms.index')">
+                    Kezelés
+                </x-responsive-nav-link>
+            </div>
 
         @endauth
         <!-- Responsive Settings Options -->
@@ -120,18 +120,18 @@
                         @csrf
 
                         <x-responsive-nav-link :href="route('logout')" onclick="event.preventDefault();
-                                                            this.closest('form').submit();">
-                            {{ __('Log Out') }}
+                                                                this.closest('form').submit();">
+                            Kijelentkezés
                         </x-responsive-nav-link>
                     </form>
                 </div>
             @else
                 <div>
                     <x-responsive-nav-link :href="route('login')">
-                        {{ __('Login') }}
+                        Bejelentkezés
                     </x-responsive-nav-link>
                     <x-responsive-nav-link :href="route('register')">
-                        {{ __('Register') }}
+                        Regisztráció
                     </x-responsive-nav-link>
                 </div>
             @endauth

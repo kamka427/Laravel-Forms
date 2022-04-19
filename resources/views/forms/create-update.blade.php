@@ -2,9 +2,9 @@
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             @isset($form)
-                Modify: {{ $form->title }}
+                Módosítás: {{ $form->title }}
             @else
-                Create Form
+                Űrlap létrehozása
             @endisset
 
         </h2>
@@ -37,7 +37,7 @@
                             $groups[$id]['ONE_CHOICE']['choices'][$id2]['choice'] = $choice->choice;
                             $groups[$id]['ONE_CHOICE']['choices'][$id2]['id'] = $choice->id;
                         }
-                    } elseif ($question->answer_type === 'MULTIPLE_CHOICE') {
+                    } elseif ($question->answer_type === 'MULTIPLE_CHOICES') {
                         $groups[$id]['MULTIPLE_CHOICES']['question'] = $question->question;
                         if ($question->required) {
                             $groups[$id]['MULTIPLE_CHOICES']['required'] = true;
@@ -66,15 +66,18 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200">
-                    @if ($errors->any())
+                    {{-- @if ($errors->any())
                         <div class="alert alert-danger" role="alert">
                             <ul>
+                                @foreach ($errors->keys() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
                                 @foreach ($errors->all() as $error)
                                     <li>{{ $error }}</li>
                                 @endforeach
                             </ul>
                         </div>
-                    @endif
+                    @endif --}}
                     <form method="POST"
                         @isset($form) action="{{ route('forms.update', $form->id) }}"
                     @else
@@ -87,22 +90,27 @@
                         @endisset
 
                         <div class="container flex flex-col gap-y-4">
-                            <h2 class="text-xl text-center">Alap mezők</h2>
+                            <h2 class="text-xl text-center">Űrlap adatok</h2>
                             <fieldset>
                                 <x-label for="title" class="">{{ __('Az űrlap neve') }}</x-label>
+                                @error('title')
+                                    <p class="text-red-500 text-xs italic mt-4">
+                                        {{ $message }}
+                                    </p>
+                                @enderror
                                 <input id="title" type="text"
-                                    class="rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 block mt-1 w-full @error('title') is-invalid @enderror"
+                                    class="rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 block mt-1 w-full @error('title') border-red-600 @enderror"
                                     name="title"
                                     @isset($form) value="{{ old('title', $form->title) }}"
-
                                     @else
                                     value="{{ old('title') }}" @endisset />
                             </fieldset>
                             <fieldset>
                                 <x-label class="" for="auth_required">
-                                    {{ __('Vendégek számára elérhető:') }}
+                                   Csak regisztrált felhasználók számára elérhető:
                                     <input class="rounded" type="checkbox" name="auth_required"
                                         id="auth_required"
+                                        value="1"
                                         @isset($form) {{ old('auth_required', $form->auth_required) ? 'checked' : '' }}>
                                     @else
                                     {{ old('auth_required') ? 'checked' : '' }}> @endisset
@@ -110,28 +118,27 @@
                             </fieldset>
                             <fieldset>
                                 <x-label for="expires_at">{{ __('Elérhetőség vége') }}</x-label>
+                                @error('expires_at')
+                                    <p class="text-red-500 text-xs italic mt-4">
+                                        {{ $message }}
+                                    </p>
+                                @enderror
                                 <input type="datetime-local"
-                                    class="rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 block mt-1 w-full @error('expires_at') is-invalid @enderror"
+                                    class="rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 block mt-1 w-full @error('expires_at') border-red-600 @enderror"
                                     id="expires_at" name="expires_at"
                                     @isset($form) value="{{ old('expires_at', $form->expires_at) }}"
                                 @else
                                 value="{{ old('expires_at') }}" @endisset />
 
                             </fieldset>
-                            <h2 class="text-xl text-center">Dinamikus csoportok</h2>
+                            <h2 class="text-xl text-center">Dinamikus kérdés csoportok</h2>
+                            @error('groups')
+                                <p class="text-red-500 text-xs italic mt-4 text-center">
+                                    {{ $message }}
+                                @enderror
                             <div id="groups" class="flex flex-col gap-y-4">
                                 @if (old('groups', $groups) !== null)
-
-                                    @foreach (old('groups', $groups) as $id => $group)
-                                        @php
-                                            if (isset($form)) {
-                                                $uuid = $id;
-                                                echo $id;
-                                            } else {
-                                                $uuid = Str::uuid();
-                                            }
-                                        @endphp
-
+                                    @foreach (old('groups', $groups) as $uuid => $group)
                                         @if (isset($group['TEXTAREA']))
                                             <div class="" id="group_{{ $uuid }}">
                                                 <h3 class="">Textarea</h3>
@@ -147,13 +154,19 @@
                                                 </fieldset>
                                                 <fieldset>
                                                     <x-label for="question_{{ $uuid }}">Kérdés</x-label>
+                                                    @error('groups.' . $uuid . '.TEXTAREA.question')
+                                                        <p class="text-red-500 text-xs italic mt-4">
+                                                            {{ $message }}
+                                                        </p>
+                                                    @enderror
                                                     <div class="flex items-center gap-x-4">
-                                                        <x-input type="text" class="block mt-1 w-full"
+                                                        <input type="text"
+                                                            class="rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50block mt-1 w-full @error('groups.' . $uuid . '.TEXTAREA.question') border-red-600 @enderror"
                                                             id="question_{{ $uuid }}"
                                                             name="groups[{{ $uuid }}][TEXTAREA][question]"
                                                             placeholder=""
                                                             value="{{ array_key_exists('question', $group['TEXTAREA']) ? $group['TEXTAREA']['question'] : '' }}">
-                                                        </x-input>
+
                                                         <x-button type="button"
                                                             class="delete-group btn btn-danger bg-red-600"
                                                             data-group-id="{{ $uuid }}">Kérdés törlése
@@ -175,13 +188,19 @@
                                                 </fieldset>
                                                 <fieldset>
                                                     <x-label for="question_{{ $uuid }}">Kérdés</x-label>
+                                                    @error('groups.' . $uuid . '.ONE_CHOICE.question')
+                                                        <p class="text-red-500 text-xs italic mt-4">
+                                                            {{ $message }}
+                                                        </p>
+                                                    @enderror
                                                     <div class="flex items-center gap-x-4 mb-4">
-                                                        <x-input type="text" class="block mt-1 w-full"
+                                                        <input type="text"
+                                                            class="rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 block mt-1 w-full @error('groups.' . $uuid . '.ONE_CHOICE.question') border-red-600 @enderror"
                                                             id="question_{{ $uuid }}"
                                                             name="groups[{{ $uuid }}][ONE_CHOICE][question]"
                                                             placeholder=""
                                                             value="{{ array_key_exists('question', $group['ONE_CHOICE']) ? $group['ONE_CHOICE']['question'] : '' }}">
-                                                        </x-input>
+
                                                         <x-button type="button"
                                                             class="delete-group btn btn-danger bg-red-600"
                                                             data-group-id="{{ $uuid }}">Kérdés törlése
@@ -191,24 +210,28 @@
                                                         <x-label for="choices_{{ $uuid }}"
                                                             data-group-type="one">Válaszlehetőségek
                                                         </x-label>
+                                                        @error('groups.' . $uuid . '.ONE_CHOICE.choices')
+                                                            <p class="text-red-500 text-xs italic mt-4">
+                                                                {{ $message }}
+                                                            </p>
+                                                        @enderror
                                                         @if (isset($group['ONE_CHOICE']['choices']))
-                                                            @foreach ($group['ONE_CHOICE']['choices'] as $id => $choice)
-                                                                @php
-                                                                    if ($form !== null) {
-                                                                        $uuid2 = $id;
-                                                                    } else {
-                                                                        $uuid2 = Str::uuid();
-                                                                    }
-                                                                @endphp
-
+                                                            @foreach ($group['ONE_CHOICE']['choices'] as $uuid2 => $choice)
+                                                                @error('groups.' . $uuid . '.ONE_CHOICE.choices.' .
+                                                                    $uuid2 . '.choice')
+                                                                    <p class="text-red-500 text-xs italic mt-4">
+                                                                        {{ $message }}
+                                                                    </p>
+                                                                @enderror
                                                                 <div class="flex items-center gap-x-4"
                                                                     id="choice_{{ $uuid2 }}">
-                                                                    <x-input type="text" class="block mt-1 w-full"
+                                                                    <input type="text"
+                                                                        class="rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 block mt-1 w-full @error('groups.' . $uuid . '.ONE_CHOICE.choices.' . $uuid2 . '.choice') border-red-600 @enderror"
                                                                         id="choice_{{ $uuid }}"
                                                                         name="groups[{{ $uuid }}][ONE_CHOICE][choices][{{ $uuid2 }}][choice]"
                                                                         placeholder=""
                                                                         value="{{ array_key_exists('choice', $choice) ? $choice['choice'] : '' }}">
-                                                                        ></x-input>
+
                                                                     <x-button type="button"
                                                                         class="remove-choice btn btn-danger bg-red-600"
                                                                         data-group-id="{{ $uuid }}"
@@ -239,13 +262,19 @@
                                                 </fieldset>
                                                 <fieldset>
                                                     <x-label for="question_{{ $uuid }}">Kérdés</x-label>
+                                                    @error('groups.' . $uuid . '.MULTIPLE_CHOICES.question')
+                                                        <p class="text-red-500 text-xs italic mt-4">
+                                                            {{ $message }}
+                                                        </p>
+                                                    @enderror
                                                     <div class="flex items-center gap-x-4 mb-4">
-                                                        <x-input type="text" class="block mt-1 w-full"
-                                                            id="question_{{ $uuid }}"
+                                                        <input type="text"
+                                                            class="rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 block mt-1 w-full @error('groups.' . $uuid . '.MULTIPLE_CHOICES.question') border-red-600 @enderror"
+                                                            id=" question_{{ $uuid }}"
                                                             name="groups[{{ $uuid }}][MULTIPLE_CHOICES][question]"
                                                             placeholder=""
                                                             value="{{ array_key_exists('question', $group['MULTIPLE_CHOICES']) ? $group['MULTIPLE_CHOICES']['question'] : '' }}">
-                                                        </x-input>
+
                                                         <x-button type="button"
                                                             class="delete-group btn btn-danger bg-red-600"
                                                             data-group-id="{{ $uuid }}">Kérdés törlése
@@ -255,28 +284,28 @@
                                                         <x-label for="choices_{{ $uuid }}"
                                                             data-group-type="mul">Válaszlehetőségek
                                                         </x-label>
+                                                        @error('groups.' . $uuid . '.MULTIPLE_CHOICES.choices')
+                                                            <p class="text-red-500 text-xs italic mt-4">
+                                                                {{ $message }}
+                                                            </p>
+                                                        @enderror
                                                         @if (isset($group['MULTIPLE_CHOICES']['choices']))
-                                                            @php
-                                                                $group['MULTIPLE_CHOICES']['choices'];
-                                                            @endphp
-                                                            @foreach ($group['MULTIPLE_CHOICES']['choices'] as $choice)
-                                                                @php
-                                                                    if ($form !== null) {
-                                                                        $uuid2 = $id;
-                                                                    } else {
-                                                                        $uuid2 = Str::uuid();
-                                                                    }
-                                                                @endphp
-
-
+                                                            @foreach ($group['MULTIPLE_CHOICES']['choices'] as $uuid2 => $choice)
+                                                                @error('groups.' . $uuid . '.MULTIPLE_CHOICES.choices.'
+                                                                    . $uuid2 . '.choice')
+                                                                    <p class="text-red-500 text-xs italic mt-4">
+                                                                        {{ $message }}
+                                                                    </p>
+                                                                @enderror
                                                                 <div class="flex items-center gap-x-4"
                                                                     id="choice_{{ $uuid2 }}">
-                                                                    <x-input type="text" class="block mt-1 w-full"
+                                                                    <input type="text"
+                                                                        class="rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 block mt-1 w-full @error('groups.' . $uuid . '.MULTIPLE_CHOICES.choices.' . $uuid2 . '.choice') border-red-600 @enderror"
                                                                         id="choice_{{ $uuid }}"
                                                                         name="groups[{{ $uuid }}][MULTIPLE_CHOICES][choices][{{ $uuid2 }}][choice]"
                                                                         placeholder=""
                                                                         value="{{ array_key_exists('choice', $choice) ? $choice['choice'] : '' }}">
-                                                                        ></x-input>
+
                                                                     <x-button type="button"
                                                                         class="remove-choice btn btn-danger bg-red-600"
                                                                         data-group-id="{{ $uuid }}"
@@ -299,7 +328,7 @@
                                 @endif
                             </div>
                             <div class="flex flex-col gap-4 text-center">
-                            <div>
+                                <div>
                                     <x-button type="button" id="add-textarea" class="ml-3">
                                         {{ __('Új kifejtős') }}</x-button>
                                     <x-button type="button" id="add-one-choice" class="ml-3">
@@ -310,8 +339,12 @@
                                     </x-button>
                                 </div>
                                 <div>
-                                    <x-button class="ml-3 bg-green-600">{{ __('Űrlap mentése') }}</x-button>
-                                    <x-button class="ml-3 bg-red-600">{{ __('Űrlap törlése') }}</x-button>
+                                    @isset($form)
+                                    <x-button class="ml-3 bg-green-600">Űrlap mentése</x-button>
+                                    @else
+                                    <x-button class="ml-3 bg-green-600">Űrlap mentése</x-button>
+                                    <x-button type="reset" class="ml-3 bg-red-600">Űrlap törlése</x-button>
+                                    @endisset
                                 </div>
                             </div>
                         </div>

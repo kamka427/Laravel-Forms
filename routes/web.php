@@ -34,9 +34,14 @@ Route::middleware(['auth'])->group(
             [FormController::class, 'fill']
         )->name('forms.fill')->withoutMiddleware('auth');
         Route::post(
-            '/response',
+            '/response/{form}',
             [FormController::class, 'response']
         )->name('forms.response')->withoutMiddleware('auth');
+        Route::delete(
+            '/forms/{form}',
+            [FormController::class, 'destroy']
+        )->name('forms.destroy');
+        Route::patch('/forms/{form}', [FormController::class, 'restore'])->name('forms.restore');
     }
 );
 
