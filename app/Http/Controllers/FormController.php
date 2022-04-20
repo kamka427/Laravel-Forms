@@ -93,7 +93,7 @@ class FormController extends Controller
             'groups.*.*.*.answer' => 'nullable|min:2|max:144',
             'groups.*.1.*.choice' => 'required_with:groups.*.1.ONE_CHOICE|numeric|exists:choices,id',
             'groups.*.*.*.choice' => 'nullable|numeric|exists:choices,id',
-            'groups.*.1.*.choices' => 'required_with:groups.*.1.MULTIPLE_CHOICES|min:1|exists:choices,id',
+            'groups.*.1.*.choices' => 'required_with:groups.*.1.MULTIPLE_CHOICES|array|min:1|exists:choices,id',
             'groups.*.*.*.choices' => 'nullable|array|min:1|exists:choices,id',
         ]);
 
@@ -155,36 +155,36 @@ class FormController extends Controller
 
 
         $user = Auth::user() ?? null;
+        if (isset($validated['groups']))
+            foreach ($validated['groups'] as $id => $req) {
+                foreach ($req as $group) {
+                    foreach ($group as $type => $question) {
+                        $answer = new Answer();
+                        $answer->question_id = $id;
+                        if ($user)
+                            $answer->user_id = $user->id;
 
-        foreach ($validated['groups'] as $id => $req) {
-            foreach ($req as $group) {
-                foreach ($group as $type => $question) {
-                    $answer = new Answer();
-                    $answer->question_id = $id;
-                    if ($user)
-                        $answer->user_id = $user->id;
-
-                    if ($type === 'TEXTAREA') {
-                        if (strlen($question['answer']) != 0) {
-                            $answer->answer = $question['answer'];
+                        if ($type === 'TEXTAREA') {
+                            if (strlen($question['answer']) != 0) {
+                                $answer->answer = $question['answer'];
+                                $answer->save();
+                            }
+                        } elseif ($type === 'ONE_CHOICE') {
+                            $answer->choice_id = $question['choice'];
                             $answer->save();
-                        }
-                    } elseif ($type === 'ONE_CHOICE') {
-                        $answer->choice_id = $question['choice'];
-                        $answer->save();
-                    } elseif ($type === 'MULTIPLE_CHOICES') {
-                        foreach ($question['choices'] as $choice) {
-                            $answer = new Answer();
-                            $answer->question_id = $id;
-                            if ($user)
-                                $answer->user_id = $user->id;
-                            $answer->choice_id = $choice;
-                            $answer->save();
+                        } elseif ($type === 'MULTIPLE_CHOICES') {
+                            foreach ($question['choices'] as $choice) {
+                                $answer = new Answer();
+                                $answer->question_id = $id;
+                                if ($user)
+                                    $answer->user_id = $user->id;
+                                $answer->choice_id = $choice;
+                                $answer->save();
+                            }
                         }
                     }
                 }
             }
-        }
 
         return redirect('/')->with('form-filled', $form->title);
     }
@@ -249,9 +249,9 @@ class FormController extends Controller
             }
         }
 
-        $form->questions()->WhereNotIn('id', $question_ids)->delete();
+        $form->questions()->WhereNotIn('id', $question_ids)->forceDelete();
         $form->questions()->each(function ($question) use ($choice_ids) {
-            $question->choices()->WhereNotIn('id', $choice_ids)->delete();
+            $question->choices()->WhereNotIn('id', $choice_ids)->forceDelete();
         });
 
         return redirect()->route('forms.show', $form->id);
@@ -272,7 +272,7 @@ class FormController extends Controller
                 'groups' => 'required|array|min:1',
                 'groups.*.*.required' => 'nullable|boolean',
                 'groups.*.*.question' => 'required|min:3|max:144',
-                'groups.*.*.choices.*.choice' => 'required|min:3|max:144',
+                'groups.*.*.choices.*.choice' => 'required|min:1|max:144',
                 'groups.*.*.choices' => 'array|min:1|required_with:groups.*.ONE_CHOICE,groups.*.MULTIPLE_CHOICES',
             ],
         );
